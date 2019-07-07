@@ -1,0 +1,49 @@
+#Create one file namemulti_migration.sh in /usr/local/src/
+#vi /usr/local/src/multi_migration.sh and past all codes.
+
+# Create folder to collect the logs of the users Migrations
+# Exact logs localtion would be /opt/status_update/LOG_imapsync/
+
+
+mkdir -p /opt/status_update
+log=/opt/status_update
+
+echo ""
+echo ""
+echo -e "\e[92mPlease type another email id to start another user migrtion if have more than one user to migrate"
+echo ""
+echo ""
+
+echo -e "\e[92mPlease Enter the Usernmae in full email id as below"
+read -p "Example - user@domain.tdl : " email
+
+echo -e "\e[92mPlease Enter the Source_server password of email id $email"
+read -sp "For - $email : " password1
+
+echo -e "\e[92mPlease Enter the destination password of email id $email "
+read -sp "For - $email : " password2
+
+screen -dmS "status_updates" bash -c "trap 'echo gotsigint' INT; cd $log ; imapsync --host1 mail.tdigroup.net --user1  $email --password1 ${password1} --host2 202.66.175.97 --user2  $email --password2 ${password2} ;  bash"
+
+
+echo ""
+echo ""
+
+echo "\e[34mMigration Started"
+echo ""
+echo ""
+echo "Open another terminal and check the logs for the running migrations"
+echo ""
+echo -e "\e[34mYour Logs Location for the migration is /opt/status_update/LOG_imapsync/"
+
+echo ""
+echo -e "\e[40;38;5;82mDo you want to start another user migration  \e[30;48;5;82m [y/n]? \e[0m: "
+
+read q
+
+if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
+
+chmod +x /usr/local/src/multi_migration.sh
+sh /usr/local/src/multi_migration.sh
+fi
+echo "#Arvind"
