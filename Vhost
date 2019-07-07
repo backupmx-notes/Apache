@@ -1,0 +1,185 @@
+#!/bin/bash
+
+if [ "$(whoami)" != 'root' ]; then
+echo -e "\e[40;38;5;82mPleae login as root user \e[30;48;5;82m [y/n]? \e[0m: "
+exit 1;
+fi
+
+
+echo -e "\e[40;38;5;82mIs this your ubuntu or centos \e[30;48;5;82m [y/n]? \e[0m: "
+read -p "ubuntu or centos in lowercase, please : " osname
+
+echo "!====================================================================================================!"
+echo ""
+echo ""
+
+echo -e "\e[91mBe-Caareful before running this script ! Read each instruction before go ahead for next steps" 
+
+echo ""
+echo ""
+echo "!=====================================================================================================!"
+
+
+echo -e "\e[40;38;5;82m Would you like me to install Apaceh Server (httpd) the Server  \e[30;48;5;82m [y/n]? \e[0m: "
+read q
+
+if [[ "${q}" == "no" ]] || [[ "${q}" == "n" ]]; then
+
+echo -e "\e[32m!==========================\e[32m===========================================================================!"
+
+elif [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
+
+sudo yum -y install httpd >/dev/null 2>&1
+
+sudo systemctl enable httpd.service
+
+
+echo -e "\e[32m!===============\e[32mWait for Apache Installation also cehcking if already have available=================!"
+
+fi
+
+echo -e "\e[93mWould you like me to Restart Apaceh Server (httpd) the Server  [y/n]? : "
+read q
+if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
+sudo systemctl restart httpd.service
+fi
+
+echo -e "\e[32mAttention !!! ?"
+echo -e "\e[32m!==========================\e[32mYour Apaceh Status, Make sure it running before procced futehr=============!" 
+
+sudo systemctl status httpd.service
+
+echo -e "\e[32m!==========================\e[32mYour Apaceh Status, Make sure it running before procced futehr=============!"
+
+echo ""
+echo ""
+echo ""
+
+echo -e "\e[32m!===========\e[32mNow Create Your VHost for website and install the WordPress===============================!"
+
+echo ""
+echo ""
+
+SERVICE_="apache2"
+VHOST_PATH="/etc/apache2/sites-available"
+CFG_TEST="apachectl -t"
+if [ "$osname" == "centos" ]; then
+  SERVICE_="httpd"
+  VHOST_PATH="/etc/httpd/conf.d"
+  CFG_TEST="service httpd configtest"
+elif [ "$osname" != "ubuntu" ]; then
+
+echo -e "\e[40;38;5;82mSorry mate but I only support ubuntu or centos\e[30;48;5;82m [y/n]? \e[0m: "
+
+echo -e "\e[40;38;5;82mBy the way, are you sure you have entered 'centos' or 'ubuntu' all lowercase???\e[30;48;5;82m [y/n]? \e[0m: "
+  exit 1;
+fi
+echo -e "\e[40;38;5;82mYour Server IP Address as below \e[30;48;5;82m [y/n]? \e[0m: "
+echo "============================"
+echo ""
+hostname -i|cut -f2 -d ' '
+echo ""
+echo "============================"
+echo -e "\e[40;38;5;82m Enter the listened IP for the web server \e[30;48;5;82m [y/n]? \e[0m: "
+
+read -p "e.g. * : " listen
+
+echo "Enter the Website-name you want"
+read -p "e.g. mydomain.tld (without www) : " websitename
+echo "Enter a CNAME"
+read -p "e.g. www or dev for dev.websitename.com : " cname
+echo "Enter the path of directory you wanna use"
+read -p "e.g. /home/, dont forget the / : " dir
+echo "Enter the name of the document root folder"
+read -p "e.g. public_html : " docroot
+
+
+if ! mkdir -p $dir$cname_$websitename/$docroot; then
+echo "Web directory already Exist !"
+else
+
+echo -e "\e[40;38;5;82mUser added for SSH Access and your file/folder prmissions\e[30;48;5;82m [y/n]? \e[0m: "
+
+echo "Enter the user you wanna use"
+read -p "e.g. user1 : " usr
+while grep "${usr}" /etc/passwd >/dev/null 2>&1; do
+read -p "user already exist try diffirnet username : " usr
+done
+
+useradd  $usr
+
+usermod -s /bin/bash -d $dir$cname_$websitename/$docroot $usr
+
+passwd $usr
+
+echo -e "\e[40;38;5;82mWeb directory created with success ! Now downloading the wordpess please wait for few seconds\e[30;48;5;82m [y/n]? \e[0m: "
+fi
+
+cd $dir$cname_$websitename/$docroot
+wget https://wordpress.org/latest.tar.gz
+tar -xvf latest.tar.gz >/dev/null
+mv wordpress/* .
+rm -rf latest.tar.gz
+chown -R $usr:$usr $dir$cname_$websitename/$docroot
+find . -type f -exec chmod 644 {} \;
+find . -type d -exec chmod 755 {} \;
+
+mkdir /var/log/$cname_$websitename
+
+alias=$cname.$websitename
+if [[ "${cname}" == "" ]]; then
+alias=$websitename
+fi
+
+echo "#### $cname $websitename
+<VirtualHost $listen:80>
+ServerName $websitename
+ServerAlias $alias
+DocumentRoot $dir$cname_$websitename/$docroot
+ErrorLog /var/log/$cname_$websitename/error.log
+CustomLog /var/log/$cname_$websitename/access.log combined
+<Directory $dir$cname_$websitename/$docroot>
+Options Indexes FollowSymLinks MultiViews
+AllowOverride All
+Order allow,deny
+Allow from all
+Require all granted
+</Directory>
+
+</VirtualHost>" > $VHOST_PATH/$cname_$websitename.conf
+if ! echo -e $VHOST_PATH/$cname_$websitename.conf; then
+echo "Virtual host wasn't created !"
+else
+echo "Virtual host created !"
+fi
+
+if [ "$osname" == "ubuntu" ]; then
+  echo "Enabling Virtual host..."
+  sudo a2ensite $cname_$websitename.conf
+fi
+
+echo "Testing configuration"
+sudo $CFG_TEST
+echo "Would you like me to restart the server [y/n]? "
+read q
+if [[ "${q}" == "yes" ]] || [[ "${q}" == "y" ]]; then
+service $SERVICE_ restart
+fi
+echo -e "\e[32m!==========================\e[32mYour Apaceh Status, Make sure it running before procced futehr=============!" 
+
+sudo systemctl status httpd.service
+
+echo "======================================"
+echo "All works done! You should be able to see your websitename at http://$websitename"
+
+echo "!======================================Your Created Details as Below=====================================!"
+echo ""
+echo "Your Website name 		: $websitename"
+echo "ServerIP (SSH) 			: $listen"
+echo "Username (SSH) 			: $usr"
+echo "Password (SSH)			: yourpassword"
+echo "Website Document Root 		: $dir$cname_$websitename/$docroot"
+echo "Website Log locations 		: /var/log/$cname_$websitename/access.log"
+echo "Website Log locations 		: /var/log/$cname_$websitename/error.log"
+echo ""
+echo "!=========================================================================================================!"
