@@ -1,0 +1,68 @@
+vhost for subdomain
+
+<VirtualHost 103.35.165.248:80>
+    ServerName docs.satishznet.tk
+   ServerAlias www.docs.satishznet.tk
+   Redirect "/" "https://docs.satishznet.tk/"
+</VirtualHost>
+
+
+<VirtualHost 103.35.165.248:443>
+        ServerName docs.satishznet.tk
+        ServerAlias www.docs.satishznet.tk
+        DocumentRoot /home/tomcat-user/public_html/docs
+        ErrorLog /home/tomcat-user/logs/docs/error.log
+        CustomLog /home/tomcat-user/logs/docs/access.log combined
+
+        <Directory /home/tomcat-user/public_html/docs>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride All
+                Order allow,deny
+                Allow from all
+                Require all granted
+        </Directory>
+
+    SSLEngine On
+    SSLCertificateFile /root/.acme.sh/docs.satishznet.tk/docs.satishznet.tk.cer
+    SSLCertificateKeyFile /root/.acme.sh/docs.satishznet.tk/docs.satishznet.tk.key
+    SSLCACertificateFile /root/.acme.sh/docs.satishznet.tk/ca.cer
+</VirtualHost>
+
+[root@tomcat-pc sites-available]#
+
+vhost for main-domain domain
+
+[root@tomcat-pc sites-available]# cat satishznet.tk.conf
+<VirtualHost 103.35.165.248:80>
+    ServerName www.satishznet.tk
+    ServerAlias satishznet.tk
+    Redirect "/" "https://satishznet.tk"
+</VirtualHost>
+
+<VirtualHost 103.35.165.248:443>
+        ServerName satishznet.tk
+        ServerAlias www.satishznet.tk
+        DocumentRoot /home/tomcat-user/public_html
+        ErrorLog /home/tomcat-user/logs/error.log
+        CustomLog /home/tomcat-user/logs/access.log combined
+
+        <Directory /home/tomcat-user/public_html>
+                Options Indexes FollowSymLinks MultiViews
+                AllowOverride All
+                Order allow,deny
+                Allow from all
+                Require all granted
+        </Directory>
+
+     SSLEngine On
+     SSLCertificateFile /root/.acme.sh/satishznet.tk/satishznet.tk.cer
+     SSLCertificateKeyFile /root/.acme.sh/satishznet.tk/satishznet.tk.key
+     SSLCACertificateFile /root/.acme.sh/satishznet.tk/fullchain.cer
+
+<IfModule proxy_ajp_module>
+#    ProxyPass "/" "ajp://127.0.0.1:8009/"
+    ProxyPass "/nwdocs" "ajp://127.0.0.1:8009/newdocs"
+    ProxyPassMatch ^/manager(.*)$ ajp://localhost:8009/manager/$1
+    ProxyPassMatch ^/host-manager(.*)$ ajp://localhost:8009/host-manager/$1
+</IfModule>
+</VirtualHost>
