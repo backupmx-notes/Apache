@@ -50,6 +50,7 @@ chmod +x /opt/tomcat/bin/*
 echo "export CATALINA_HOME=/opt/tomcat" >> ~/.bashrc
 source ~/.bashrc
 iptables -I INPUT -m tcp -p tcp -s 0.0.0.0/0 --dport 8080 -j ACCEPT 
+cd /usr/local/src/
 wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/tomcat.service
 cat /usr/local/src/tomcat.service > /etc/systemd/system/tomcat.service
 systemctl daemon-reload
@@ -76,6 +77,7 @@ chmod +x /opt/tomcat/bin/*
 echo "export CATALINA_HOME=/opt/tomcat" >> ~/.bashrc
 source ~/.bashrc
 iptables -I INPUT -m tcp -p tcp -s 0.0.0.0/0 --dport 8080 -j ACCEPT 
+cd /usr/local/src/
 wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/tomcat.service
 cat /usr/local/src/tomcat.service > /etc/systemd/system/tomcat.service
 systemctl daemon-reload
