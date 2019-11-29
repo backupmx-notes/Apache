@@ -1,6 +1,4 @@
 #!/bin/bash
-yum install wget -y
-setenforce 0
 #echo "We will install Apache 2.4, Tomcat 8.5, Java 1.8 with this script for your Java Application, you may skip the installation as well"
 
 if [ "$(whoami)" != 'root' ]; then
@@ -52,7 +50,6 @@ chmod +x /opt/tomcat/bin/*
 echo "export CATALINA_HOME=/opt/tomcat" >> ~/.bashrc
 source ~/.bashrc
 iptables -I INPUT -m tcp -p tcp -s 0.0.0.0/0 --dport 8080 -j ACCEPT 
-cd /usr/local/src/
 wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/tomcat.service
 cat /usr/local/src/tomcat.service > /etc/systemd/system/tomcat.service
 systemctl daemon-reload
@@ -79,7 +76,6 @@ chmod +x /opt/tomcat/bin/*
 echo "export CATALINA_HOME=/opt/tomcat" >> ~/.bashrc
 source ~/.bashrc
 iptables -I INPUT -m tcp -p tcp -s 0.0.0.0/0 --dport 8080 -j ACCEPT 
-cd /usr/local/src/
 wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/tomcat.service
 cat /usr/local/src/tomcat.service > /etc/systemd/system/tomcat.service
 systemctl daemon-reload
