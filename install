@@ -1,0 +1,4 @@
+#/bin/bash
+cd /usr/local/src
+yum install vim wget -y 
+wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/tomcat_script.sh
