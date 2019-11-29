@@ -1,0 +1,4 @@
+<Host name="websitename">
+<Alias>websitename</Alias>
+<Context crossContext="false" reloadable="false" useNaming="true" debug="0" privileged="true" docBase="/home/myusername/public_html/mywar" cookies="true" path="/mywar" cachingAllowed="true" />
+</Host>
