@@ -1,6 +1,6 @@
 #!/bin/sh
 #######################################
-# Bash script to Install an Apache2, PHP 7.4, 8.1,Mariadb10 and PHPMyAdmin
+# Bash script to Install an Apache2, PHP 7.4, 8.1,Mariadb and PHPMyAdmin
 # Written by Arvind Kumar Madhukar
 
 # In case of any errors (e.g. MySQL) just re-run the script. Nothing will be re-installed except for the packages with errors.
