@@ -2,8 +2,8 @@
 --------------------
 server {
 listen 80;
-server_name testdomain.com;
-root /var/www/testdomain.com/public_html;
+server_name domain;
+root /var/www/domain/public_html;
 
 index index.php index.html;
 
