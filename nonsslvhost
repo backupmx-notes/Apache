@@ -1,0 +1,88 @@
+!/bin/bash
+cd /usr/local/src
+if [ "$(whoami)" != 'root' ]; then
+echo "\e[40;38;5;82mPleae login as root user \e[30;48;5;82m\e[0m"
+exit 1;
+fi
+SERVICE_="apache2"
+VHOST_PATH="/etc/apache2/sites-available"
+CFG_TEST="apachectl -t"
+ROOTDIR="/var/www"
+DOCROOT="public_html"
+echo "\e[40;38;5;82mYour Server IP Address as below \e[30;48;5;82m\e[0m "
+hostname -i|cut -f1 -d ' '
+echo "\e[40;38;5;82mEnter the listened IP for the web server \e[30;48;5;82m\e[0m "
+read -p "e.g. * : " listen
+
+echo "Enter the Website-name you want"
+read -p "e.g. mydomain.tld (without www) : " websitename
+echo "Enter a CNAME"
+read -p "e.g. www or dev for dev.websitename.com : " cname
+echo "Enter the username you wanna create"
+read -p "e.g. user1 : " usr
+
+while grep "${usr}" /etc/passwd >/dev/null 2>&1; do
+read -p "user already exist try diffirnet username : " usr
+done
+
+mkdir -p /var/log/$websitename
+if ! mkdir -p /var/www/$websitename; then
+echo "Web directory already Exist !"
+else
+
+groupadd $usr
+mkdir -p $ROOTDIR/$websitename/$DOCROOT
+useradd -g $usr -m -d $ROOTDIR/$websitename/$DOCROOT -c “$usr” -s /bin/bash $usr >/dev/null 2>&1
+
+mkdir -p $ROOTDIR/$websitename/$DOCROOT
+
+echo "<h1 style='color: green;'>$websitename</h1>" | sudo tee /var/www/$websitename/public_html/index.html >/dev/null 2>&1
+echo "<?php phpinfo(); ?>" | sudo tee /var/www/$websitename/public_html/info.php >/dev/null 2>&1
+
+find /var/www/$websitename/public_html/ -type f -exec chmod 644 {} \;
+find /var/www/$websitename/public_html/ -type d -exec chmod 755 {} \;
+usermod -aG $usr $usr
+chown -R $usr:$usr $ROOTDIR/$websitename/$DOCROOT
+passwd $usr
+echo -e "\e[40;38;5;82mWeb directory created with success\e[30;48;5;82m\e[0m: "
+fi
+
+mkdir -p /usr/local/src/ZNetLive
+rm -rf /usr/local/src/ZNetLive/*
+cd /usr/local/src/ZNetLive
+wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/ngvhost
+wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/php74
+wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/avhost
+
+echo -e "\e[40;38;5;82mPlease wait whie we are performing the task..........\e[30;48;5;82m\e[0m: "
+cp -r /usr/local/src/ZNetLive/avhost /etc/apache2/sites-available/$websitename.conf
+sed -i -e "s/domain/$websitename/" /etc/apache2/sites-available/$websitename.conf
+a2ensite $websitename.conf  >/dev/null 2>&1
+systemctl reload apache2  >/dev/null 2>&1
+cp -r /usr/local/src/ZNetLive/php74 /etc/php/7.4/fpm/pool.d/$websitename.conf
+sed -i -e "s/domain/$websitename/" /etc/php/7.4/fpm/pool.d/$websitename.conf
+sed -i -e "s/name/$usr/" /etc/php/7.4/fpm/pool.d/$websitename.conf
+systemctl restart apache2
+systemctl restart php7.4-fpm
+cp -r /usr/local/src/ZNetLive/ngvhost /etc/nginx/sites-available/$websitename.conf
+sed -i -e "s/domain/$websitename/" /etc/nginx/sites-available/$websitename.conf
+ln -s /etc/nginx/sites-available/$websitename.conf /etc/nginx/sites-enabled/$websitename.conf
+service nginx restart
+service apache2 restart
+systemctl restart php7.4-fpm
+systemctl reload apache2
+
+
+echo "All works done! You should be able to see your websitename at http://$websitename"
+
+echo "!======================================Your Created Details as Below=====================================!"
+echo ""
+echo "Your Website name 		: $websitename"
+echo "ServerIP (SSH) 			: $listen"
+echo "Username (SSH) 			: $usr"
+echo "Password (SSH)			: yourpassword"
+echo "Website Document Root 		: $dir$cname_$websitename/$docroot"
+echo "Website Log locations 		: /var/log/$cname_$websitename/access.log"
+echo "Website Log locations 		: /var/log/$cname_$websitename/error.log"
+echo ""
+echo "!=========================================================================================================!"
