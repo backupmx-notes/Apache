@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 cd /usr/local/src
 if [ "$(whoami)" != 'root' ]; then
 echo "\e[40;38;5;82mPleae login as root user \e[30;48;5;82m\e[0m"
