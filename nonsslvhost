@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 cd /usr/local/src
 if [ "$(whoami)" != 'root' ]; then
 echo "\e[40;38;5;82mPleae login as root user \e[30;48;5;82m\e[0m"
@@ -54,7 +54,7 @@ wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/ngvhost
 wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/php74
 wget https://raw.githubusercontent.com/backupmx-notes/Apache/master/avhost
 
-echo -e "\e[40;38;5;82mPlease wait whie we are performing the task..........\e[30;48;5;82m\e[0m: "
+echo"\e[40;38;5;82mPlease wait whie we are performing the task..........\e[30;48;5;82m\e[0m: "
 cp -r /usr/local/src/ZNetLive/avhost /etc/apache2/sites-available/$websitename.conf
 sed -i -e "s/domain/$websitename/" /etc/apache2/sites-available/$websitename.conf
 a2ensite $websitename.conf  >/dev/null 2>&1
