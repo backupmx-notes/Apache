@@ -9,11 +9,6 @@ VHOST_PATH="/etc/apache2/sites-available"
 CFG_TEST="apachectl -t"
 ROOTDIR="/var/www"
 DOCROOT="public_html"
-echo "\e[40;38;5;82mYour Server IP Address as below \e[30;48;5;82m\e[0m "
-hostname -i|cut -f1 -d ' '
-echo "\e[40;38;5;82mEnter the listened IP for the web server \e[30;48;5;82m\e[0m "
-read -p "e.g. * : " listen
-
 echo "Enter the Website-name you want"
 read -p "e.g. mydomain.tld (without www) : " websitename
 echo "Enter a CNAME"
