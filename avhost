@@ -1,0 +1,25 @@
+<VirtualHost *:8080>
+ServerName testdomain.com
+
+DocumentRoot /var/www/testdomain.com/public_html
+ErrorLog /var/log/testdomain.com/error_log
+CustomLog /var/log/testdomain.com/access.log combined
+
+<FilesMatch \.php$>
+SetHandler "proxy:unix:/run/php/php7.4-fpm-testdomain.com.sock|fcgi://testdomain.com/"
+</FilesMatch>
+
+
+# Directory indexes
+<IfModule dir_module>
+DirectoryIndex index.htm index.html index.shtml index.php index.phtml
+</IfModule>
+
+<Directory "/var/www/testdomain.com/public_html">
+Order allow,deny
+Allow from all
+AllowOverride FileInfo All
+# New directive needed in Apache 2.4.3:
+Require all granted
+</Directory>
+</VirtualHost>
