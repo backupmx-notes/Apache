@@ -1,6 +1,6 @@
-[owner]
-user = owner
-group = owner
+[name]
+user = name
+group = name
 listen = /run/php/php7.4-fpm-domain.sock
 listen.owner = www-data
 listen.group = www-data
